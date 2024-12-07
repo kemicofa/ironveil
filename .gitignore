@@ -1,0 +1,46 @@
+# Compiled binaries and build artifacts
+/target/
+
+# Output of cargo commands
+Cargo.lock
+*.rs.bk
+
+# Dependencies (only if you're using a vendor directory)
+vendor/
+
+# IDEs and editors
+# JetBrains IDEs
+.idea/
+/*.iml
+# VSCode
+.vscode/
+/.vscode/settings.json
+# Vim
+*.swp
+*.swo
+# Emacs
+*~
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+*.stackdump
+
+# Linux
+*~
+
+# Node.js (if used in front-end or WASM)
+node_modules/
+dist/
+
+# Debugging
+*.log
+*.trace
+
+# Sub-crates (ignore their local target folders)
+**/target/
+
+# Specific to Rust Analyzer (optional, auto-generated configs)
+/.rust-analyzer.json
