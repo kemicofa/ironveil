@@ -66,11 +66,11 @@ fn setup(
     commands.insert_resource(MovementSpeed(300.0)); // Movement speed in units per second
 }
 
-const SPEED: f32 = 100.0;
 fn movement(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, With<Player>>,
+    movement_speed: Res<MovementSpeed>
 ) {
     for mut transform in &mut query {
         let mut direction = Vec3::ZERO;
@@ -88,7 +88,7 @@ fn movement(
         }
 
         if direction != Vec3::ZERO {
-            transform.translation += direction.normalize() * SPEED * time.delta_secs();
+            transform.translation += direction.normalize() * movement_speed.0 * time.delta_secs();
         }
     }
 }

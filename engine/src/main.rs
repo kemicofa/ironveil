@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use plugins::{core::CorePlugin, map::MapPlugin, player::PlayerPlugin};
+use plugins::{core::CorePlugin, enemy::EnemyPlugin, map::MapPlugin, player::PlayerPlugin};
 
 mod plugins;
 mod state;
@@ -11,6 +11,7 @@ fn main() {
         .add_plugins(CorePlugin)
         .add_plugins(MapPlugin)
         .add_plugins(PlayerPlugin)
+        .add_plugins(EnemyPlugin)
         .run();
 }
 
