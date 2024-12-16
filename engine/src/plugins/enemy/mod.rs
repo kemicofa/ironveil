@@ -1,4 +1,5 @@
 use bevy::{app::{App, Plugin, Update}, asset::AssetServer, math::{Vec2, Vec3}, prelude::{in_state, Commands, Component, EventReader, IntoSystemConfigs, OnEnter, Query, Res, Resource, Transform, With}, sprite::Sprite, time::Time, window::{PrimaryWindow, Window, WindowResized}};
+use bevy_rapier2d::prelude::{Collider, GravityScale, LockedAxes, RigidBody};
 
 use crate::state::AppState;
 
@@ -50,7 +51,11 @@ fn setup(
             ..Default::default()
         })
         .insert(Velocity(Vec2::ZERO))
-        .insert(MovementSpeed(90.0));
+        .insert(MovementSpeed(90.0))
+        .insert(RigidBody::Dynamic)
+        .insert(Collider::cuboid(16.0, 16.0))
+        .insert(GravityScale(0.0))
+        .insert(LockedAxes::ROTATION_LOCKED);
 
 }
 

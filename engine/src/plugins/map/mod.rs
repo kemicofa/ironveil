@@ -13,7 +13,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Map::generate(22222, 200, 200))
+        app.insert_resource(Map::generate(12345, 200, 200))
             .add_systems(OnEnter(AppState::InGame), spawn_map);
     }
 }
