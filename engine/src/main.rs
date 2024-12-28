@@ -2,8 +2,9 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use events::DamageEvent;
 use plugins::{
-    collision::CollisionPlugin, core::CorePlugin, damage::DamagePlugin, enemy::EnemyPlugin, map::MapPlugin, player::PlayerPlugin
+    collision::CollisionPlugin, damage::DamagePlugin, enemy::EnemyPlugin, game_over::GameOverPlugin, map::MapPlugin, menu::MenuPlugin, player::PlayerPlugin
 };
+use state::{AppState, GameState};
 
 mod events;
 mod plugins;
@@ -16,13 +17,16 @@ fn main() {
         .add_event::<DamageEvent>() 
         .add_plugins(DefaultPlugins)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugins(CorePlugin)
+        .add_plugins(MenuPlugin)
         .add_plugins(MapPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(CollisionPlugin)
         .add_plugins(DamagePlugin)
+        .add_plugins(GameOverPlugin)
         .add_systems(Startup, setup)
+        .init_state::<AppState>()
+        .init_state::<GameState>()
         .run();
 }
 

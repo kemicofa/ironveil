@@ -12,7 +12,7 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, GravityScale, LockedAxes, RigidBody};
 
-use crate::state::AppState;
+use crate::state::{AppState, GameState};
 
 use super::{map::Map, player::Player};
 
@@ -39,7 +39,7 @@ impl Plugin for EnemyPlugin {
                 move_toward_player,
                 update_position,
             )
-                .run_if(in_state(AppState::InGame)),
+                .run_if(in_state(GameState::Ongoing)),
         );
     }
 }

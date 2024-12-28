@@ -16,13 +16,13 @@ use bevy::{
     utils::default,
 };
 
-use crate::state::AppState;
+use crate::state::{AppState, GameState};
 
-pub struct CorePlugin;
+pub struct MenuPlugin;
 
-impl Plugin for CorePlugin {
+impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.init_state::<AppState>()
+        app
             // This system runs when we enter `AppState::Menu`, during the `StateTransition` schedule.
             // All systems from the exit schedule of the state we're leaving are run first,
             // and then all systems from the enter schedule of the state we're entering are run second.
@@ -84,7 +84,8 @@ fn setup_menu(mut commands: Commands) {
 }
 
 fn menu(
-    mut next_state: ResMut<NextState<AppState>>,
+    mut next_app_state: ResMut<NextState<AppState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
@@ -94,7 +95,8 @@ fn menu(
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                next_state.set(AppState::InGame);
+                next_app_state.set(AppState::InGame);
+                next_game_state.set(GameState::Ongoing);
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

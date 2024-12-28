@@ -11,7 +11,7 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, GravityScale, LockedAxes, RigidBody};
 
-use crate::{health::Health, state::AppState};
+use crate::{health::Health, state::{AppState, GameState}};
 
 use super::map::Map;
 
@@ -26,12 +26,13 @@ impl Plugin for PlayerPlugin {
         .add_systems(
             Update,
             (
+                check_health,
                 movement,
                 camera_follow,
                 resize_player_on_window_resize,
                 update_health_bar,
             )
-                .run_if(in_state(AppState::InGame)),
+                .run_if(in_state(GameState::Ongoing)),
         );
     }
 }
@@ -39,7 +40,7 @@ impl Plugin for PlayerPlugin {
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Resource)]
+#[derive(Component)]
 pub struct MovementSpeed(f32);
 
 #[derive(Component)]
@@ -74,6 +75,7 @@ fn setup(
         .insert(GravityScale(0.0))
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Health::new(100.0))
+        .insert(MovementSpeed(200.0))
         .with_children(|parent| {
             parent
                 .spawn(Sprite {
@@ -84,9 +86,17 @@ fn setup(
                 .insert(Transform::from_xyz(0.0, 24.0, 0.0))
                 .insert(HealthBar);
         });
+}
 
-    // Add the movement speed resource
-    commands.insert_resource(MovementSpeed(300.0)); // Movement speed in units per second
+fn check_health(
+    mut next_game_state: ResMut<NextState<GameState>>,    
+    player_query: Query<&Health, With<Player>>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        if player.is_dead() {
+            next_game_state.set(GameState::GameOver);
+        }
+    }
 }
 
 fn update_health_bar(
@@ -107,10 +117,9 @@ fn update_health_bar(
 fn movement(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Transform, With<Player>>,
-    movement_speed: Res<MovementSpeed>,
+    mut query: Query<(&mut Transform, &MovementSpeed), With<Player>>
 ) {
-    for mut transform in &mut query {
+    for (mut transform, movement_speed) in &mut query {
         let mut direction = Vec3::ZERO;
         if input.pressed(KeyCode::KeyA) {
             direction.x -= 1.0;

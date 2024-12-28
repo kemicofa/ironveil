@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{collision_state::CollisionState, events::DamageEvent, health::Health, state::AppState};
+use crate::{collision_state::CollisionState, health::Health, state::{GameState}};
 
 use super::{enemy::Enemy, player::Player};
 
@@ -11,7 +11,7 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (handle_damage).run_if(in_state(AppState::InGame)));
+        app.add_systems(Update, (handle_damage).run_if(in_state(GameState::Ongoing)));
     }
 }
 

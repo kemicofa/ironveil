@@ -14,4 +14,8 @@ impl Health {
     pub fn apply_damage(&mut self, damage: f32) {
         self.current = (self.current - damage).max(0.0);
     }
+
+    pub fn is_dead(&self) -> bool {
+        self.current == 0.0
+    }
 }

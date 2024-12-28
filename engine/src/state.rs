@@ -5,5 +5,12 @@ pub enum AppState {
     #[default]
     Menu,
     InGame,
-    GameOver,
+}
+
+#[derive(Default, Debug, States, Hash, Eq, PartialEq, Clone)]
+pub enum GameState {
+    #[default]
+    Paused,
+    Ongoing,
+    GameOver
 }
