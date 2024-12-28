@@ -1,0 +1,12 @@
+{
+  "map": {
+    "seed": 12345
+  },
+  "events": [
+    {
+      "seconds_time_start": 0,
+      "seconds_duration": 1000,
+      "type": "ENEMY_SPAWN"
+    }
+  ]
+}

@@ -13,7 +13,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Map::generate(12345, 200, 200))
+        app.insert_resource(Map::generate(123456, 200, 200))
             .add_systems(OnEnter(AppState::InGame), spawn_map);
     }
 }
@@ -77,7 +77,7 @@ fn spawn_map(mut commands: Commands, asset_server: Res<AssetServer>, map: Res<Ma
 
     for y in 0..map.height {
         for x in 0..map.width {
-            let tile_type = &map.tiles[y * map.width + x];
+            let tile_type: &TileType = &map.tiles[y * map.width + x];
             let texture = match tile_type {
                 TileType::Water => water_texture.clone(),
                 TileType::Grass => grass_texture.clone(),

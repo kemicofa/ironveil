@@ -1,11 +1,17 @@
-
-
 use bevy::{
-    app::{App, Plugin, Update}, asset::AssetServer, color::Color, input::ButtonInput, math::{Vec2, Vec3}, prelude::{default, in_state, BuildChildren, Camera, ChildBuild, Children, Commands, Component, EventReader, IntoSystemConfigs, KeyCode, OnEnter, Query, Res, Resource, Transform, With, Without}, sprite::Sprite, time::Time, window::{PrimaryWindow, Window, WindowResized}
+    app::{App, Plugin, Update},
+    asset::AssetServer,
+    color::Color,
+    input::ButtonInput,
+    math::{Vec2, Vec3},
+    prelude::*,
+    sprite::Sprite,
+    time::Time,
+    window::{PrimaryWindow, Window, WindowResized},
 };
-use bevy_rapier2d::prelude::{Collider, GravityScale, LockedAxes, RigidBody};
+use bevy_rapier2d::prelude::{ActiveEvents, Collider, GravityScale, LockedAxes, RigidBody};
 
-use crate::state::AppState;
+use crate::{health::Health, state::AppState};
 
 use super::map::Map;
 
@@ -19,7 +25,12 @@ impl Plugin for PlayerPlugin {
         )
         .add_systems(
             Update,
-            (movement, camera_follow, resize_player_on_window_resize, update_health_bar)
+            (
+                movement,
+                camera_follow,
+                resize_player_on_window_resize,
+                update_health_bar,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
     }
@@ -30,18 +41,6 @@ pub struct Player;
 
 #[derive(Resource)]
 pub struct MovementSpeed(f32);
-
-#[derive(Component)]
-pub struct Health {
-    pub current: f32,
-    pub max: f32
-}
-
-impl Health {
-    pub fn new(max: f32) -> Self {
-        Self { current: max, max }
-    }
-}
 
 #[derive(Component)]
 pub struct HealthBar;
@@ -71,20 +70,20 @@ fn setup(
         })
         .insert(RigidBody::Dynamic)
         .insert(Collider::cuboid(16.0, 16.0))
+        .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(GravityScale(0.0))
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Health::new(100.0))
-        .with_children(|parent|{
-            parent.spawn(
-                Sprite {
-                    color: Color::BLACK,
+        .with_children(|parent| {
+            parent
+                .spawn(Sprite {
+                    color: Color::linear_rgb(1.0, 0.0, 0.0),
                     custom_size: Some(Vec2::new(32.0, 4.0)),
                     ..default()
-                }
-            ).insert(Transform::from_xyz(0.0, 24.0, 0.0))
-            .insert(HealthBar);
+                })
+                .insert(Transform::from_xyz(0.0, 24.0, 0.0))
+                .insert(HealthBar);
         });
-
 
     // Add the movement speed resource
     commands.insert_resource(MovementSpeed(300.0)); // Movement speed in units per second
@@ -98,19 +97,18 @@ fn update_health_bar(
         for &child in children.iter() {
             if let Ok(mut sprite) = health_bars.get_mut(child) {
                 // Adjust the width of the health bar based on health percentage
-                let health_percentage = health.current / health.max;
-                sprite.custom_size = Some(Vec2::new(32.0 * health_percentage, 4.0));
+                let health_percentage = health.current.max(0.0) / health.max;
+                sprite.custom_size = Some(Vec2::new(32.0 * health_percentage as f32, 4.0));
             }
         }
     }
 }
 
-
 fn movement(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, With<Player>>,
-    movement_speed: Res<MovementSpeed>
+    movement_speed: Res<MovementSpeed>,
 ) {
     for mut transform in &mut query {
         let mut direction = Vec3::ZERO;

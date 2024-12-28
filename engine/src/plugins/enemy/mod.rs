@@ -1,12 +1,25 @@
-use bevy::{app::{App, Plugin, Update}, asset::AssetServer, math::{Vec2, Vec3}, prelude::{in_state, Commands, Component, EventReader, IntoSystemConfigs, OnEnter, Query, Res, Resource, Transform, With}, sprite::Sprite, time::Time, window::{PrimaryWindow, Window, WindowResized}};
-use bevy_rapier2d::prelude::{Collider, GravityScale, LockedAxes, RigidBody};
+use bevy::{
+    app::{App, Plugin, Update},
+    asset::AssetServer,
+    math::{Vec2, Vec3},
+    prelude::{
+        in_state, Commands, Component, Entity, EventReader, IntoSystemConfigs, OnEnter, Query, Res,
+        Resource, Transform, With,
+    },
+    sprite::Sprite,
+    time::Time,
+    window::{PrimaryWindow, Window, WindowResized},
+};
+use bevy_rapier2d::prelude::{ActiveEvents, Collider, GravityScale, LockedAxes, RigidBody};
 
 use crate::state::AppState;
 
 use super::{map::Map, player::Player};
 
 #[derive(Component)]
-pub struct Enemy;
+pub struct Enemy {
+   pub damage_per_second: f32
+}
 
 #[derive(Component)]
 struct Velocity(Vec2);
@@ -21,7 +34,11 @@ impl Plugin for EnemyPlugin {
         )
         .add_systems(
             Update,
-            (resize_enemy_on_window_resize, move_toward_player, update_position)
+            (
+                resize_enemy_on_window_resize,
+                move_toward_player,
+                update_position,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
     }
@@ -44,7 +61,9 @@ fn setup(
     // Player entity
     commands
         .spawn(Sprite::from_image(asset_server.load("enemy.png")))
-        .insert(Enemy)
+        .insert(Enemy {
+            damage_per_second: 10.0
+        })
         .insert(Transform {
             translation: Vec3::new(center_x, center_y, 1.0), // Position at the center
             scale: Vec3::splat(scale_factor),
@@ -54,11 +73,10 @@ fn setup(
         .insert(MovementSpeed(90.0))
         .insert(RigidBody::Dynamic)
         .insert(Collider::cuboid(16.0, 16.0))
+        .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(GravityScale(0.0))
         .insert(LockedAxes::ROTATION_LOCKED);
-
 }
-
 
 #[derive(Component)]
 pub struct MovementSpeed(f32);
@@ -71,9 +89,9 @@ fn move_toward_player(
     if let Ok(player_transform) = player_query.get_single() {
         for (enemy_transform, mut velocity, movement_speed) in enemy_query.iter_mut() {
             // Calculate direction vector towards the player
-            let direction = player_transform.translation.truncate()
-                - enemy_transform.translation.truncate();
-            
+            let direction =
+                player_transform.translation.truncate() - enemy_transform.translation.truncate();
+
             // Normalize direction to get a unit vector
             let normalized_direction = direction.normalize_or_zero();
 
@@ -89,7 +107,6 @@ fn update_position(time: Res<Time>, mut query: Query<(&mut Transform, &Velocity)
         transform.translation += velocity.0.extend(0.0) * time.delta_secs();
     }
 }
-
 
 fn resize_enemy_on_window_resize(
     mut resize_events: EventReader<WindowResized>,
