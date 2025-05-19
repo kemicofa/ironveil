@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.15.0", features = ["dynamic_linking"] }
+bevy = { version = "0.15.0" }
 # https://bevyengine.org/learn/quick-start/getting-started/setup/#improve-runtime-performance-optional
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 rand = "0.8"
